@@ -97,3 +97,52 @@ This repository contains the setup and containerization of a project named **Clo
      ```bash
      git push origin main
      ```
+ # task3: EC2 Module & Infrastructure Setup with Terraform**
+
+This project demonstrates how to use Terraform to provision an AWS EC2 instance, VPC, subnets, security groups, and run a Dockerized application.
+
+---
+
+## **1. Overview**
+
+This project automates the creation of AWS infrastructure, including:
+- **VPC** with public subnets
+- **EC2 instance** with Docker installed
+- **Security groups** to control access
+- **User data script** to install and run Docker containers
+
+---
+
+## **2. Infrastructure Components**
+
+### **VPC & Subnets**
+- Creates a **VPC** with two public subnets in different availability zones.
+
+### **Security Group**
+- Defines an **EC2 security group** to allow SSH (port 22) and HTTP (port 80) access.
+
+### **EC2 Instance**
+- Uses a **Terraform module** to create an EC2 instance with a Dockerized application running in a container.
+
+---
+
+## **3. Key Files**
+
+### **main.tf**
+- Defines the VPC, subnets, security group, and integrates the EC2 module.
+
+### **ec2/main.tf**
+- Provisions the EC2 instance, including user data for installing Docker and running the app.
+
+### **variables.tf**
+- Contains variables for customizing the EC2 instance, AMI ID, instance type, etc.
+
+---
+
+## **4. How to Use**
+
+### **Step 1: Initialize Terraform**
+```bash
+terraform init
+terraform plan
+terraform apply         
