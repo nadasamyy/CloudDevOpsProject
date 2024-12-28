@@ -39,7 +39,7 @@ pipeline {
                         bat '''
                             java -version
 
-                            gradlew.bat sonarqube ^
+                            .\gradlew.bat sonarqube ^
                             -Dsonar.projectKey=java-project ^
                             -Dsonar.projectName=java_application ^
                             -Dsonar.host.url=http://localhost:9000 ^
