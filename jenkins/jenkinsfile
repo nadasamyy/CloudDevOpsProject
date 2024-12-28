@@ -5,7 +5,6 @@ pipeline {
 
     environment {
         DOCKER_REGISTRY = 'docker.io/nadasamy181'  // Replace with your Docker registry
-
     }
 
     options {
