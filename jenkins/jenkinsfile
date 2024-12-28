@@ -37,19 +37,23 @@ pipeline {
                 }
             }
         }
-      stage('Build Docker Image') {
+
+        stage('Build Docker Image') {
             steps {
                 script {
-                    // Build your Docker image here
-                    sh 'docker build -t my-app .'
+                    bat '''
+                        docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION} .
+                    '''
                 }
             }
         }
+
         stage('Push Docker Image to Registry') {
             steps {
                 script {
-                    // Push your Docker image to the registry
-                    sh 'docker push my-app'
+                    bat '''
+                        docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}
+                    '''
                 }
             }
         }
@@ -57,24 +61,15 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Run SonarQube analysis with JDBC configuration
-                    sonarScan(
-                        projectKey: "${SONAR_PROJECT_KEY}",
-                        projectName: "${SONAR_PROJECT_NAME}",
-                        sonarHostUrl: "${SONAR_HOST_URL}",
-                        jdbcUrl: "${SONAR_JDBC_URL}",
-                        jdbcUsername: "${SONAR_JDBC_USERNAME}",
-                        jdbcPassword: "${SONAR_JDBC_PASSWORD}"
-                    )
+                    bat '''
+                        sonar-scanner -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                       -Dsonar.projectName=${SONAR_PROJECT_NAME} \
+                                       -Dsonar.host.url=${SONAR_HOST_URL} \
+                                       -Dsonar.jdbc.url=${SONAR_JDBC_URL} \
+                                       -Dsonar.jdbc.username=${SONAR_JDBC_USERNAME} \
+                                       -Dsonar.jdbc.password=${SONAR_JDBC_PASSWORD}
+                    '''
                 }
-            }
-        }
-
-
-
-        stage('Post Actions') {
-            steps {
-                cleanWs()  // Clean workspace
             }
         }
     }
