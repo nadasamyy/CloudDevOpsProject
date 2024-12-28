@@ -1,27 +1,77 @@
 pipeline {
     agent any
 
+    environment {
+        // Docker image details
+        DOCKER_IMAGE_NAME = "my-app"
+        DOCKER_IMAGE_VERSION = "${env.BUILD_NUMBER}"
+
+        // SonarQube details
+        SONAR_PROJECT_KEY = "my-gradle-project-key"
+        SONAR_PROJECT_NAME = "My Gradle Project"
+        SONAR_HOST_URL = "http://52.205.194.199:9000"  // Replace with your EC2 instance's IP address
+        SONAR_JDBC_URL = "jdbc:postgresql://52.205.194.199:5433/sonarqube"  // PostgreSQL container is mapped to port 5433
+        SONAR_JDBC_USERNAME = "sonar"  // The username for PostgreSQL
+        SONAR_JDBC_PASSWORD = "sonarpass"  // The password for PostgreSQL
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
+
         stage('Unit Test') {
             steps {
                 script {
-                    // Ensure you are running the correct Gradle task
-                    bat './gradlew test' // Use './gradlew' on Windows
+                    bat './gradlew test'
                 }
             }
         }
+
         stage('Build JAR') {
             steps {
                 script {
-                    bat './gradlew build' // Ensure build task is correctly set up
+                    bat './gradlew build'
                 }
             }
         }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    // Run SonarQube analysis with JDBC configuration
+                    sonarScan(
+                        projectKey: "${SONAR_PROJECT_KEY}",
+                        projectName: "${SONAR_PROJECT_NAME}",
+                        sonarHostUrl: "${SONAR_HOST_URL}",
+                        jdbcUrl: "${SONAR_JDBC_URL}",
+                        jdbcUsername: "${SONAR_JDBC_USERNAME}",
+                        jdbcPassword: "${SONAR_JDBC_PASSWORD}"
+                    )
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}")
+                }
+            }
+        }
+
+        stage('Push Docker Image to Registry') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                        docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}").push()
+                    }
+                }
+            }
+        }
+
         stage('Post Actions') {
             steps {
                 cleanWs()  // Clean workspace
