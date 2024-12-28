@@ -37,6 +37,22 @@ pipeline {
                 }
             }
         }
+      stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build your Docker image here
+                    sh 'docker build -t my-image-name .'
+                }
+            }
+        }
+        stage('Push Docker Image to Registry') {
+            steps {
+                script {
+                    // Push your Docker image to the registry
+                    sh 'docker push my-image-name'
+                }
+            }
+        }
 
         stage('SonarQube Analysis') {
             steps {
@@ -54,23 +70,7 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}")
-                }
-            }
-        }
 
-        stage('Push Docker Image to Registry') {
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                        docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}").push()
-                    }
-                }
-            }
-        }
 
         stage('Post Actions') {
             steps {
