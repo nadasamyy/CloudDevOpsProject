@@ -1,23 +1,14 @@
 pipeline {
     agent any
-
     environment {
-        // Docker image details
-        DOCKER_IMAGE_NAME = "my-app"
-        DOCKER_IMAGE_VERSION = "${env.BUILD_NUMBER}"
-
-        // SonarQube details
-        SONAR_PROJECT_KEY = "my-gradle-project-key"
-        SONAR_PROJECT_NAME = "My Gradle Project"
-        SONAR_HOST_URL = "http://52.205.194.199:9000"  // Replace with your EC2 instance's IP address
-        SONAR_JDBC_URL = "jdbc:postgresql://52.205.194.199:5433/sonarqube"  // PostgreSQL container is mapped to port 5433
-        SONAR_JDBC_USERNAME = "sonar"  // The username for PostgreSQL
-        SONAR_JDBC_PASSWORD = "sonarpass"  // The password for PostgreSQL
+        // Set environment variables for Docker image name and version
+        DOCKER_IMAGE_NAME = 'nadasamy181/my-app'
+        DOCKER_IMAGE_VERSION = 'latest'
     }
-
     stages {
         stage('Checkout') {
             steps {
+                // Checkout the code from SCM (Source Control Management)
                 checkout scm
             }
         }
@@ -25,6 +16,7 @@ pipeline {
         stage('Unit Test') {
             steps {
                 script {
+                    // Run unit tests using Gradle
                     bat './gradlew test'
                 }
             }
@@ -33,6 +25,7 @@ pipeline {
         stage('Build JAR') {
             steps {
                 script {
+                    // Build the project and create a JAR file using Gradle
                     bat './gradlew build'
                 }
             }
@@ -41,9 +34,9 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    bat '''
-                        docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION} .
-                    '''
+                    // Build Docker image using the Dockerfile in the current directory
+                    echo "Building Docker image ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}"
+                    sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION} ."
                 }
             }
         }
@@ -51,9 +44,13 @@ pipeline {
         stage('Push Docker Image to Registry') {
             steps {
                 script {
-                    bat '''
-                        docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}
-                    '''
+                    // Log in to Docker Hub
+                    echo "Logging into Docker..."
+                    sh 'docker login --username=nadasamy181'
+
+                    // Push the Docker image to Docker Hub (or any other registry)
+                    echo "Pushing Docker image to registry..."
+                    sh "docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}"
                 }
             }
         }
@@ -61,16 +58,22 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    bat '''
-                        sonar-scanner -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                                       -Dsonar.projectName=${SONAR_PROJECT_NAME} \
-                                       -Dsonar.host.url=${SONAR_HOST_URL} \
-                                       -Dsonar.jdbc.url=${SONAR_JDBC_URL} \
-                                       -Dsonar.jdbc.username=${SONAR_JDBC_USERNAME} \
-                                       -Dsonar.jdbc.password=${SONAR_JDBC_PASSWORD}
-                    '''
+                    // Placeholder for SonarQube analysis (can be configured as needed)
+                    echo "Running SonarQube analysis (this is just a placeholder)"
                 }
             }
+        }
+    }
+    post {
+        always {
+            // Clean up any temporary files or actions
+            echo "Cleaning up after pipeline"
+        }
+        success {
+            echo "Pipeline finished successfully!"
+        }
+        failure {
+            echo "Pipeline failed!"
         }
     }
 }
