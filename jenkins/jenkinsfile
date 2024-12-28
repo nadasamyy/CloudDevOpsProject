@@ -41,7 +41,7 @@ pipeline {
             steps {
                 script {
                     // Build your Docker image here
-                    sh 'docker build -t my-image-name .'
+                    sh 'docker build -t my-app .'
                 }
             }
         }
@@ -49,7 +49,7 @@ pipeline {
             steps {
                 script {
                     // Push your Docker image to the registry
-                    sh 'docker push my-image-name'
+                    sh 'docker push my-app'
                 }
             }
         }
