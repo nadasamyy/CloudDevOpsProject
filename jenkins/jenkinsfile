@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_REGISTRY = 'docker.io'
-        DOCKER_IMAGE = 'nadasamy181/demo-app'
+        DOCKER_IMAGE = 'nadasamy181/my-app'
     }
 
     stages {
