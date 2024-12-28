@@ -29,10 +29,9 @@ pipeline {
             }
             steps {
                 dir('.') {  // Set the working directory where gradlew is located
-                    sh '''
+                    bat '''
                         java -version  // Check Java version
-                        chmod +x ./gradlew  // Make gradlew executable
-                        ./gradlew test  // Run the tests using Gradle
+                        call gradlew test  // Run the tests using Gradle
                     '''
                 }
             }
@@ -47,8 +46,8 @@ pipeline {
         stage('Build JAR') {
             steps {
                 dir('.') {  // Set the working directory where build.gradle is located
-                    sh '''
-                        ./gradlew clean build -x test  // Clean the project and build the application excluding tests
+                    bat '''
+                        call gradlew clean build -x test  // Clean the project and build the application excluding tests
                     '''
                 }
             }
