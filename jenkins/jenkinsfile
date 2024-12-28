@@ -1,11 +1,11 @@
 pipeline {
     agent any
-    
- environment {
-    DOCKER_REGISTRY = 'docker.io'
-    DOCKER_IMAGE = 'nadasamy181/demo-app'
-}
-    
+
+    environment {
+        DOCKER_REGISTRY = 'docker.io'
+        DOCKER_IMAGE = 'nadasamy181/demo-app'
+    }
+
     stages {
         stage('Git Checkout') {
             steps {
@@ -16,7 +16,7 @@ pipeline {
         stage('Unit Test') {
             steps {
                 script {
-                    // Run your unit tests here (e.g., using Gradle or Maven)
+                    // Run unit tests (e.g., using Gradle or Maven)
                     sh './gradlew test'  // Example for Gradle
                 }
             }
@@ -25,7 +25,7 @@ pipeline {
         stage('Build JAR') {
             steps {
                 script {
-                    // Build your JAR file (e.g., using Gradle or Maven)
+                    // Build the JAR file (e.g., using Gradle or Maven)
                     sh './gradlew build'  // Example for Gradle
                 }
             }
@@ -34,7 +34,7 @@ pipeline {
         stage('Build Image') {
             steps {
                 script {
-                    // Build the Docker image using the Dockerfile
+                    // Build the Docker image
                     sh 'docker build -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER} .'
                 }
             }
@@ -43,14 +43,16 @@ pipeline {
         stage('Push Image into Registry') {
             steps {
                 script {
-                    // Push the Docker image to the registry
-                    sh 'docker login -u nadasamy181 -p $DOCKER_PASSWORD ${DOCKER_REGISTRY}'
-                    sh 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}'
+                    // Use the credentials to login to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ${DOCKER_REGISTRY}'
+                        sh 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}'
+                    }
                 }
             }
         }
     }
-    
+
     post {
         always {
             // Clean up the Docker environment if needed
