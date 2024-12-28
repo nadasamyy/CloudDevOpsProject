@@ -1,5 +1,5 @@
 
-@Library('my-shared-library') _  // Import the shared library
+@Library('shared-library') _  // Import the shared library
 
 pipeline {
     agent any  // Use any available agent for running the pipeline
