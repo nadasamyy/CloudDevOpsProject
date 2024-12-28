@@ -17,7 +17,7 @@ pipeline {
             steps {
                 script {
                     // Run unit tests (e.g., using Gradle or Maven)
-                    sh './gradlew test'  // Example for Gradle
+                    bat './gradlew test'  // Example for Gradle
                 }
             }
         }
@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     // Build the JAR file (e.g., using Gradle or Maven)
-                    sh './gradlew build'  // Example for Gradle
+                    bat './gradlew build'  // Example for Gradle
                 }
             }
         }
@@ -35,7 +35,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    sh 'docker build -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER} .'
+                    bat 'docker build -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER} .'
                 }
             }
         }
@@ -45,8 +45,8 @@ pipeline {
                 script {
                     // Use the credentials to login to Docker Hub
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ${DOCKER_REGISTRY}'
-                        sh 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}'
+                        bat 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ${DOCKER_REGISTRY}'
+                        bat 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}'
                     }
                 }
             }
@@ -56,7 +56,7 @@ pipeline {
     post {
         always {
             // Clean up the Docker environment if needed
-            sh 'docker rmi ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}'
+            bat 'docker rmi ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}'
         }
     }
 }
