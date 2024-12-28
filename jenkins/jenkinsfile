@@ -5,7 +5,8 @@ pipeline {
         DOCKER_IMAGE = 'nadasamy181/my-app'
         DOCKER_TAG = 'latest'
         SONARQUBE_SCANNER_HOME = tool name: 'SonarQube Scanner', type: 'ToolLocation'
-        JAVA_HOME = tool name: 'jdk-11', type: 'ToolLocation'
+        // Remove or replace with an existing JDK version
+      //  JAVA_HOME = '/path/to/your/java' // Update this with a valid JDK path if needed
     }
 
     stages {
