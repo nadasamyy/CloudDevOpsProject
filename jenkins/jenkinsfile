@@ -12,11 +12,11 @@ pipeline {
                 checkout scm
             }
         }
-        
+
         stage('Unit Test') {
             steps {
                 script {
-                    bat './gradlew test'  // Example for Gradle
+                    bat './gradlew test'  // Running Gradle test tasks
                 }
             }
         }
@@ -24,7 +24,28 @@ pipeline {
         stage('Build JAR') {
             steps {
                 script {
-                    bat './gradlew build'  // Example for Gradle
+                    bat './gradlew build'  // Running Gradle build tasks
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            tools {
+                jdk 'JDK17'  // Ensure JDK17 is configured in Jenkins Global Tool Configuration
+            }
+            steps {
+                dir('FinalProjectCode') {  // Adjusted to point to the root of your project structure
+                    withCredentials([string(credentialsId: 'sonar-credentials', variable: 'TOKEN')]) {
+                        bat '''
+                            java -version
+
+                            gradlew.bat sonarqube ^
+                            -Dsonar.projectKey=java-project ^
+                            -Dsonar.projectName=java_application ^
+                            -Dsonar.host.url=http://localhost:9000 ^
+                            -Dsonar.token=%TOKEN%
+                        '''
+                    }
                 }
             }
         }
