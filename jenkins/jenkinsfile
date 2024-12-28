@@ -36,15 +36,14 @@ pipeline {
             steps {
                 dir('FinalProjectCode') {  // Adjusted to point to the root of your project structure
                     withCredentials([string(credentialsId: 'sonar-credentials', variable: 'TOKEN')]) {
-                        bat '''
+                        bat """
                             java -version
-
-                            .\gradlew.bat sonarqube ^
-                            -Dsonar.projectKey=java-project ^
-                            -Dsonar.projectName=java_application ^
-                            -Dsonar.host.url=http://localhost:9000 ^
+                            .\\gradlew.bat sonarqube \
+                            -Dsonar.projectKey=java-project \
+                            -Dsonar.projectName=java_application \
+                            -Dsonar.host.url=http://localhost:9000 \
                             -Dsonar.token=%TOKEN%
-                        '''
+                        """
                     }
                 }
             }
