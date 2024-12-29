@@ -72,10 +72,10 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 script {
-                    // Set the Minikube Docker environment for Jenkins
-                    bat 'eval $(minikube -p minikube docker-env)'
+                    // Ensure Minikube Docker environment is set
+                    bat 'minikube -p minikube docker-env | set'
 
-                    // Ensure the Docker image is built using Minikube's Docker daemon
+                    // Ensure the Docker image is available for Minikube
                     bat 'docker build -t nadasamy181/my-app:v1 .'
 
                     // Apply the Kubernetes deployment
@@ -93,8 +93,17 @@ pipeline {
     post {
         always {
             script {
-                bat 'docker rmi %DOCKER_REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER%'  // Clean up Docker images
+                // Clean up Docker images to save space
+                bat 'docker rmi %DOCKER_REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER%' 
             }
+        }
+        failure {
+            // Add notification logic for failed pipeline (e.g., email, Slack)
+            echo 'Pipeline failed!'
+        }
+        success {
+            // Add notification logic for successful pipeline (e.g., email, Slack)
+            echo 'Pipeline succeeded!'
         }
     }
 }
