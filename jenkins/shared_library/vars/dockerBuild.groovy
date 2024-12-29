@@ -1,10 +1,8 @@
-#!/usr/bin/env groovy
-// vars/dockerBuild.groovy
+// dockerBuild.groovy
 
-def call(Map config){
-    def imageTag = "${config.imageName}:${config.version}";
+def call(String dockerRegistry, String dockerImage, String buildNumber) {
+    echo "Building Docker Image: ${dockerRegistry}/${dockerImage}:${buildNumber}"
     
-    sh """
-    docker build -t ${imageTag} .
-    """
+    // Build Docker Image using bat for Windows
+    bat "docker build -t ${dockerRegistry}/${dockerImage}:${buildNumber} ."
 }
