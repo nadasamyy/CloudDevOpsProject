@@ -1,11 +1,14 @@
-// vars/dockerPushImage.groovy
-def call(String imageName, String buildNumber, String dockerRegistry, String dockerCredentialsId) {
-    withCredentials([usernamePassword(credentialsId: dockerCredentialsId, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-        sh '''
-            echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
-            docker tag ${imageName}:${buildNumber} ${dockerRegistry}/${imageName}:${buildNumber}
-            docker push ${dockerRegistry}/${imageName}:${buildNumber}
-            docker logout ${dockerRegistry}
-        '''
+// dockerPushImage.groovy
+
+def call(String dockerRegistry, String dockerImage, String buildNumber) {
+    echo "Pushing Docker Image: ${dockerRegistry}/${dockerImage}:${buildNumber}"
+
+    // Login to Docker Registry using bat for Windows
+    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+        bat "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${dockerRegistry}"
     }
+    
+    // Push Docker Image to Registry using bat for Windows
+    bat "docker push ${dockerRegistry}/${dockerImage}:${buildNumber}"
 }
+
