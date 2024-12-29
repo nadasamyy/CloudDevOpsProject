@@ -1,3 +1,5 @@
+@Library('shared_library') _  // Import shared library for reusable steps
+
 pipeline {
     agent any
 
@@ -52,7 +54,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    bat 'docker build -t %DOCKER_REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER% .'
+                    // Call the shared library to build Docker image
+                    dockerBuild(DOCKER_REGISTRY, DOCKER_IMAGE, "${BUILD_NUMBER}")
                 }
             }
         }
@@ -60,10 +63,8 @@ pipeline {
         stage('Push Docker Image to Registry') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        bat 'docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD% %DOCKER_REGISTRY%'
-                        bat 'docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER%'
-                    }
+                    // Call the shared library to push Docker image
+                    dockerPushImage(DOCKER_REGISTRY, DOCKER_IMAGE, "${BUILD_NUMBER}")
                 }
             }
         }
@@ -72,10 +73,10 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 script {
-                    // Ensure Minikube Docker environment is set
-                    bat 'minikube -p minikube docker-env | set'
+                    // Set the Minikube Docker environment for Jenkins
+                    bat 'eval $(minikube -p minikube docker-env)'
 
-                    // Ensure the Docker image is available for Minikube
+                    // Ensure the Docker image is built using Minikube's Docker daemon
                     bat 'docker build -t nadasamy181/my-app:v1 .'
 
                     // Apply the Kubernetes deployment
@@ -93,16 +94,14 @@ pipeline {
     post {
         always {
             script {
-                // Clean up Docker images to save space
-                bat 'docker rmi %DOCKER_REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER%' 
+                // Clean up Docker images after the build
+                bat 'docker rmi %DOCKER_REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER%'
             }
         }
         failure {
-            // Add notification logic for failed pipeline (e.g., email, Slack)
             echo 'Pipeline failed!'
         }
         success {
-            // Add notification logic for successful pipeline (e.g., email, Slack)
             echo 'Pipeline succeeded!'
         }
     }
